@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zxx">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-1.0" />
+    <title>Selection Image</title>
+    <style>
+        body {
+            --font-size: 10px;
+            font-family: monospace;
+            font-size: var(--font-size);
+            line-height: var(--font-size);
+        }
+        p {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+        span {
+            vertical-align: top;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        const src = "./bliss.jpg";
+        const width = 100;
+        const height = 100;
+        const filler = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' +
+                       ' incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis no' +
+                       'strud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Du' +
+                       'is aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu ' +
+                       'fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in' +
+                       ' culpa qui officia deserunt mollit anim id est laborum.';
+        
+        const createSpan = id => {
+            const span = document.createElement("span");
+            span.innerText = filler.charAt((id * 2) % filler.length) + filler.charAt((id * 2 + 1) % filler.length);
+            span.id = `c${id}`;
+            return span;
+        };
+    
+        window.onload = async () => {
+            const image = await new Promise((resolve, _) => {
+                const canvas = document.createElement("canvas");
+                _image = new Image();
+                _image.src = src;
+                _image.onload = () => {
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext("2d");
+                    ctx.drawImage(_image, 0, 0, width, height);
+                    resolve(ctx.getImageData(0, 0, width, height).data);
+                }
+            });
+            const hex = [...Array(width * height)].map((_, i) => `rgba(${image.slice(i * 4, (i + 1) * 4)})`);
+            let style = '';
+            let p = document.createElement('p');
+            hex.forEach((h, id) => {
+                if (!(id % width)) {
+                    document.body.appendChild(p);
+                    p = document.createElement('p');
+                }
+                p.appendChild(createSpan(id));
+                style += `#c${id}::selection{background:${h}}`;
+            });
+            document.getElementsByTagName('style')[0].innerHTML += style;
+        };
+    </script>
+</body>
+</html>
